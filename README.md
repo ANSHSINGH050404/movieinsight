@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MovieInsights AI
 
-## Getting Started
+A premium, AI-powered tool to discover audience sentiment for any movie using IMDb IDs.
 
-First, run the development server:
+## Features
+- **Instant Metadata**: Fetch titles, posters, and cast details via TMDB.
+- **AI Sentiment Analysis**: Powered by Google Gemini (1.5 Flash) to summarize audience reviews.
+- **Sentiment Classification**: Categorizes feedback as Positive, Mixed, or Negative.
+- **Premium UI**: Dark-mode aesthetic with glassmorphism, Framer Motion animations, and responsive design.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack Rationale
+- **Next.js (App Router)**: Chosen for its robust server-side capabilities and seamless routing.
+- **TypeScript**: Ensures type safety and better developer experience.
+- **Tailwind CSS**: Rapid UI development with utility classes.
+- **Framer Motion**: Delivers the "premium" feel through smooth, GPU-accelerated animations.
+- **Google Gemini SDK**: Used for high-speed, cost-effective, and accurate sentiment analysis.
+- **Lucide React**: Provides a consistent and modern icon set.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup Instructions
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Set up environment variables**:
+   Create a `.env.local` file in the root directory and add your keys:
+   ```env
+   TMDB_API_KEY=your_tmdb_api_key
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+4. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+5. **Build for production**:
+   ```bash
+   npm run build
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Assumptions & Constraints
+- **Data Source**: TMDB is used as the primary source for movie metadata and reviews. If a movie has no reviews on TMDB, the AI analysis will indicate a lack of data.
+- **ID Format**: The app expects standard IMDb IDs starting with `tt` followed by digits (e.g., `tt0133093`).
+- **AI Model**: Uses `gemini-1.5-flash` for a balance of speed and intelligence.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+Recommended: **Vercel**
+1. Push to GitHub.
+2. Connect repository to Vercel.
+3. Add `TMDB_API_KEY` and `GEMINI_API_KEY` to the project's Environment Variables in the Vercel dashboard.
+4. Deploy.
