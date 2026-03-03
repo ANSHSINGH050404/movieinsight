@@ -1,3 +1,5 @@
+import { log } from "node:console";
+
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -13,6 +15,26 @@ export interface MovieDetails {
   reviews: { author: string; content: string }[];
 }
 
+interface TMDBCastMember {
+  name: string;
+  character: string;
+  profile_path: string | null;
+}
+
+interface TMDBReview {
+  author: string;
+  content: string;
+}
+
+interface TMDBMovie {
+  id: number;
+  title: string;
+  poster_path: string;
+  release_date: string;
+  vote_average: number;
+  overview: string;
+}
+
 export interface AnalysisResult {
   summary: string;
   sentiment: 'positive' | 'mixed' | 'negative';
@@ -21,11 +43,17 @@ export interface AnalysisResult {
 }
 
 async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}) {
+
+  // https://api.themoviedb.org/3/find/tt0057565?api_key=YOUR_TMDB_API_KEY&external_source=imdb_id
+
+  
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
+
   url.searchParams.append('api_key', TMDB_API_KEY || '');
   Object.entries(params).forEach(([key, value]) => url.searchParams.append(key, value));
 
   const response = await fetch(url.toString());
+   
   if (!response.ok) {
     if (response.status === 401) throw new Error('Invalid TMDB API Key');
     throw new Error(`TMDB API Error: ${response.statusText}`);
@@ -61,12 +89,12 @@ export async function fetchMovieById(id: string | number): Promise<MovieDetails 
       release_date: movieData.release_date || '',
       vote_average: movieData.vote_average || 0,
       overview: movieData.overview || '',
-      cast: movieData.credits?.cast?.slice(0, 10).map((c: any) => ({
+      cast: movieData.credits?.cast?.slice(0, 10).map((c: TMDBCastMember) => ({
         name: c.name,
         character: c.character,
         profile_path: c.profile_path
       })) || [],
-      reviews: movieData.reviews?.results?.slice(0, 5).map((r: any) => ({
+      reviews: movieData.reviews?.results?.slice(0, 5).map((r: TMDBReview) => ({
         author: r.author,
         content: r.content
       })) || []
@@ -80,7 +108,7 @@ export async function fetchMovieById(id: string | number): Promise<MovieDetails 
 export async function searchMovies(query: string): Promise<MovieDetails[]> {
   try {
     const data = await fetchFromTMDB('/search/movie', { query });
-    return data.results.map((movie: any) => ({
+    return data.results.map((movie: TMDBMovie) => ({
       id: movie.id.toString(),
       tmdb_id: movie.id,
       title: movie.title,
@@ -100,7 +128,7 @@ export async function searchMovies(query: string): Promise<MovieDetails[]> {
 export async function getTrendingMovies(): Promise<MovieDetails[]> {
   try {
     const data = await fetchFromTMDB('/trending/movie/day');
-    return data.results.slice(0, 10).map((movie: any) => ({
+    return data.results.slice(0, 10).map((movie: TMDBMovie) => ({
       id: movie.id.toString(),
       tmdb_id: movie.id,
       title: movie.title,
