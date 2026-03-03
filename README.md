@@ -4,7 +4,7 @@ A premium, AI-powered tool to discover audience sentiment for any movie using IM
 
 ## Features
 - **Instant Metadata**: Fetch titles, posters, and cast details via TMDB.
-- **AI Sentiment Analysis**: Powered by Google Gemini (1.5 Flash) to summarize audience reviews.
+- **AI Sentiment Analysis**: Powered by Google Gemini to summarize audience reviews.
 - **Sentiment Classification**: Categorizes feedback as Positive, Mixed, or Negative.
 - **Premium UI**: Dark-mode aesthetic with glassmorphism, Framer Motion animations, and responsive design.
 
