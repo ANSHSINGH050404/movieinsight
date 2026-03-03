@@ -41,7 +41,7 @@ export default function MovieSearch({ onSearch, isLoading }: MovieSearchProps) {
           value={movieId}
           onChange={(e) => setMovieId(e.target.value)}
           placeholder="Enter Movie ID (e.g. tt0133093 or 603)"
-          className="block w-full pl-11 pr-32 py-4 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-white placeholder-zinc-500 shadow-2xl"
+          className="block w-full pl-11 pr-32 py-4 bg-zinc-100/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-foreground placeholder-zinc-400 dark:placeholder-zinc-500 shadow-2xl"
           disabled={isLoading}
         />
         <div className="absolute inset-y-2 right-2">

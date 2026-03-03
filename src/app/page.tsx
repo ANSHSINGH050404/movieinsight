@@ -6,6 +6,7 @@ import MovieSearch from '@/components/MovieSearch';
 import MovieDisplay from '@/components/MovieDisplay';
 import { Clapperboard, Sparkles } from 'lucide-react';
 import { MovieDetails, AnalysisResult } from '@/lib/movies';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white relative overflow-hidden selection:bg-blue-500/30">
+    <main className="min-h-screen bg-background text-foreground relative overflow-hidden selection:bg-blue-500/30 transition-colors duration-300">
+      {/* Top Navigation */}
+      <div className="fixed top-0 right-0 p-6 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Premium Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
@@ -53,10 +59,10 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/50 border border-zinc-800 backdrop-blur-md shadow-lg"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 backdrop-blur-md shadow-lg"
           >
             <Sparkles className="h-4 w-4 text-amber-400" />
-            <span className="text-xs font-black uppercase tracking-widest text-zinc-400">AI-Powered Sentiment Discovery</span>
+            <span className="text-xs font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">AI-Powered Sentiment Discovery</span>
           </motion.div>
           
           <div className="space-y-4">
@@ -64,7 +70,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-5xl md:text-8xl font-black tracking-tight"
+              className="text-5xl md:text-8xl font-black tracking-tight text-foreground"
             >
               Movie<span className="text-blue-500">Insights</span>
             </motion.h1>
@@ -72,7 +78,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
+              className="text-zinc-600 dark:text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
             >
               Enter a Movie ID to uncover what the audience truly thinks. 
               Custom local API combined with Gemini analysis.
@@ -98,7 +104,7 @@ export default function Home() {
                   <Clapperboard className="absolute inset-0 m-auto h-6 w-6 text-blue-500 animate-pulse" />
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="text-white font-bold tracking-tight">Gathering insights...</p>
+                  <p className="text-foreground font-bold tracking-tight">Gathering insights...</p>
                   <p className="text-zinc-500 text-sm">Gemini is processing reviews and analyzing sentiment</p>
                 </div>
               </motion.div>
@@ -148,10 +154,10 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="relative z-10 py-10 border-t border-zinc-900 bg-black">
+      <footer className="relative z-10 py-10 border-t border-zinc-200 dark:border-zinc-900 bg-background transition-colors duration-300">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-zinc-500 text-sm flex items-center gap-2">
-            <span className="font-black tracking-tight text-white">MOVIEINSIGHTS</span>
+            <span className="font-black tracking-tight text-foreground">MOVIEINSIGHTS</span>
             <span>&copy; 2024</span>
           </div>
           <div className="flex gap-8 text-zinc-500 text-sm font-medium">
