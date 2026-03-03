@@ -20,24 +20,37 @@ export async function analyzeReviews(movieTitle: string, reviews: { author: stri
     .map((r, i) => `Review ${i + 1}: ${r.content.substring(0, 500)}`)
     .join('\n\n');
 
-  const prompt = `Analyze the audience reviews for the movie "${movieTitle}".
-    Provide a summary, classify sentiment, and list pros and cons.
+    const prompt = `Analyze the audience reviews for the movie "${movieTitle}".
+    Provide a summary, classify sentiment (positive, mixed, or negative), and list pros and cons.
     
+    You MUST respond with a JSON object in the following format:
+    {
+      "summary": "Short 1-2 sentence overview",
+      "sentiment": "positive" | "mixed" | "negative",
+      "pros": ["pro 1", "pro 2", ...],
+      "cons": ["con 1", "con 2", ...]
+    }
+
     Reviews:
     ${reviewsText}`;
 
   try {
     const result = await googleAI.models.generateContent({
-      model: 'gemini-3.1-pro-preview',
+      model: 'gemini-3-flash-preview',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
-        // This ensures the model returns valid JSON without markdown backticks
         responseMimeType: 'application/json',
       },
     });
 
-    // The SDK automatically parses the response if it's application/json
-    return JSON.parse(result.text || '{}') as SentimentAnalysis;
+    const parsed = JSON.parse(result.text || '{}');
+    
+    return {
+      summary: parsed.summary || 'No summary available.',
+      sentiment: parsed.sentiment || 'mixed',
+      pros: Array.isArray(parsed.pros) ? parsed.pros : [],
+      cons: Array.isArray(parsed.cons) ? parsed.cons : []
+    };
 
   } catch (error) {
     console.error('Gemini Analysis Error:', error);

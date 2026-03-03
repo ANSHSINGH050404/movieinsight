@@ -1,13 +1,48 @@
 import { fetchMovieById } from '@/lib/movies';
 import { analyzeReviews } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
+import { redis } from '@/lib/redis';
+import { ratelimit } from '@/lib/ratelimit';
+
+const CACHE_TTL = 86400; // 24 hours in seconds
 
 export async function POST(req: Request) {
   try {
+    // Rate limiting
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+    
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+          }
+        }
+      );
+    }
+
     const { imdbId } = await req.json();
 
     if (!imdbId) {
       return NextResponse.json({ error: 'Movie ID is required' }, { status: 400 });
+    }
+
+    // Try to get from cache first
+    const cacheKey = `movie:analysis:${imdbId}`;
+    try {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        // Upstash redis.get() returns the object automatically if it was stored as JSON
+        return NextResponse.json(cachedData);
+      }
+    } catch (cacheError) {
+      console.error('Redis Cache Error:', cacheError);
+      // Continue to fetch fresh data if cache fails
     }
 
     const movieDetails = await fetchMovieById(imdbId);
@@ -18,10 +53,20 @@ export async function POST(req: Request) {
 
     const analysis = await analyzeReviews(movieDetails.title, movieDetails.reviews);
 
-    return NextResponse.json({
+    const result = {
       movie: movieDetails,
       analysis
-    });
+    };
+
+    // Store in cache for future requests
+    try {
+      // Upstash redis.set() handles objects by stringifying them automatically
+      await redis.set(cacheKey, result, { ex: CACHE_TTL });
+    } catch (cacheError) {
+      console.error('Redis Cache Set Error:', cacheError);
+    }
+
+    return NextResponse.json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal Server Error';
     console.error('API Route Error:', error);

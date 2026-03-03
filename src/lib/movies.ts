@@ -42,23 +42,36 @@ export interface AnalysisResult {
   cons: string[];
 }
 
-async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}) {
-
-  // https://api.themoviedb.org/3/find/tt0057565?api_key=YOUR_TMDB_API_KEY&external_source=imdb_id
-
-  
+async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}, retries = 3, backoff = 500) {
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
+
+  if (!TMDB_API_KEY) {
+    console.error('TMDB_API_KEY is missing from environment variables');
+  }
 
   url.searchParams.append('api_key', TMDB_API_KEY || '');
   Object.entries(params).forEach(([key, value]) => url.searchParams.append(key, value));
 
-  const response = await fetch(url.toString());
-   
-  if (!response.ok) {
-    if (response.status === 401) throw new Error('Invalid TMDB API Key');
-    throw new Error(`TMDB API Error: ${response.statusText}`);
+  try {
+    const response = await fetch(url.toString());
+     
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Invalid TMDB API Key');
+      throw new Error(`TMDB API Error: ${response.statusText} (${response.status})`);
+    }
+    return await response.json();
+  } catch (error) {
+    if (retries > 0) {
+      console.warn(`TMDB Fetch failed, retrying in ${backoff}ms... (${retries} left). Error: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Wait for backoff period
+      await new Promise(resolve => setTimeout(resolve, backoff));
+      
+      // Retry with increased backoff
+      return fetchFromTMDB(endpoint, params, retries - 1, backoff * 2);
+    }
+    throw error;
   }
-  return response.json();
 }
 
 export async function fetchMovieById(id: string | number): Promise<MovieDetails | null> {

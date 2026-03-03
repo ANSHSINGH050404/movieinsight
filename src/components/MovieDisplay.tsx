@@ -27,13 +27,13 @@ export default function MovieDisplay({ movie, analysis }: MovieDisplayProps) {
     positive: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
     mixed: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20',
     negative: 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20'
-  }[analysis.sentiment];
+  }[analysis.sentiment] || 'text-zinc-600 dark:text-zinc-400 bg-zinc-500/10 border-zinc-500/20';
 
   const sentimentIcon = {
     positive: <TrendingUp className="h-5 w-5" />,
     mixed: <Minus className="h-5 w-5" />,
     negative: <TrendingDown className="h-5 w-5" />
-  }[analysis.sentiment];
+  }[analysis.sentiment] || <Minus className="h-5 w-5" />;
 
   const container = {
     hidden: { opacity: 0 },
@@ -93,11 +93,11 @@ export default function MovieDisplay({ movie, analysis }: MovieDisplayProps) {
             <div className="flex flex-wrap items-center gap-4 text-zinc-500 dark:text-zinc-400 font-medium">
               <span className="flex items-center gap-1.5 bg-zinc-100/50 dark:bg-zinc-800/50 px-3 py-1 rounded-full text-sm border border-zinc-200/30 dark:border-zinc-700/30">
                 <Calendar className="h-4 w-4" />
-                {movie.release_date.split('-')[0]}
+                {movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}
               </span>
               <span className="flex items-center gap-1.5 bg-zinc-100/50 dark:bg-zinc-800/50 px-3 py-1 rounded-full text-sm border border-zinc-200/30 dark:border-zinc-700/30">
                 <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
-                {movie.vote_average.toFixed(1)} / 10
+                {(movie.vote_average || 0).toFixed(1)} / 10
               </span>
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function MovieDisplay({ movie, analysis }: MovieDisplayProps) {
               Top Cast
             </div>
             <div className="flex flex-wrap gap-2">
-              {movie.cast.map((c, i) => (
+              {(movie.cast || []).map((c, i) => (
                 <div key={i} className="flex items-center gap-2 bg-zinc-100/30 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700/30 pl-1 pr-3 py-1 rounded-full group cursor-default hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60 transition-colors">
                   <div className="w-6 h-6 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600">
                     {c.profile_path ? (
@@ -171,7 +171,7 @@ export default function MovieDisplay({ movie, analysis }: MovieDisplayProps) {
               What they loved
             </h4>
             <ul className="space-y-2.5">
-              {analysis.pros.map((pro, i) => (
+              {(analysis.pros || []).map((pro, i) => (
                 <li key={i} className="flex gap-2.5 text-zinc-600 dark:text-zinc-400 text-sm leading-snug">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                   {pro}
@@ -185,7 +185,7 @@ export default function MovieDisplay({ movie, analysis }: MovieDisplayProps) {
               Common complaints
             </h4>
             <ul className="space-y-2.5">
-              {analysis.cons.map((con, i) => (
+              {(analysis.cons || []).map((con, i) => (
                 <li key={i} className="flex gap-2.5 text-zinc-600 dark:text-zinc-400 text-sm leading-snug">
                   <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
                   {con}
