@@ -1,6 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Initialize the client
+const googleAI = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY || ''
+});
 
 export interface SentimentAnalysis {
   summary: string;
@@ -12,34 +15,30 @@ export interface SentimentAnalysis {
 export async function analyzeReviews(movieTitle: string, reviews: { author: string; content: string }[]): Promise<SentimentAnalysis> {
   if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not defined');
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // Truncate and format reviews
+  const reviewsText = reviews
+    .map((r, i) => `Review ${i + 1}: ${r.content.substring(0, 500)}`)
+    .join('\n\n');
 
-  const prompt = `Analyze the audience reviews for the movie "${movieTitle}". 
-  Provide a summary of the sentiment, classify it as "positive", "mixed", or "negative", 
-  and list key pros and cons mentioned by the audience.
-
-  Reviews:
-  ${reviews.map((r, i) => `Review ${i + 1}: ${r.content.substring(0, 500)}...`).join('\n\n')}
-
-  Return the result strictly in JSON format as follows:
-  {
-    "summary": "...",
-    "sentiment": "positive" | "mixed" | "negative",
-    "pros": ["...", "..."],
-    "cons": ["...", "..."]
-  }`;
+  const prompt = `Analyze the audience reviews for the movie "${movieTitle}".
+    Provide a summary, classify sentiment, and list pros and cons.
+    
+    Reviews:
+    ${reviewsText}`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
+    const result = await googleAI.models.generateContent({
+      model: 'gemini-3.1-pro-preview',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: {
+        // This ensures the model returns valid JSON without markdown backticks
+        responseMimeType: 'application/json',
+      },
+    });
 
-    // Clean up response if needed (sometimes the model includes markdown code blocks)
-    if (text.startsWith('```json')) {
-      text = text.replace(/```json|```/g, '').trim();
-    }
+    // The SDK automatically parses the response if it's application/json
+    return JSON.parse(result.text || '{}') as SentimentAnalysis;
 
-    return JSON.parse(text);
   } catch (error) {
     console.error('Gemini Analysis Error:', error);
     return {

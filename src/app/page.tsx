@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MovieSearch from '@/components/MovieSearch';
 import MovieDisplay from '@/components/MovieDisplay';
+import MovieSkeleton from '@/components/MovieSkeleton';
 import { Clapperboard, Sparkles } from 'lucide-react';
 import { MovieDetails, AnalysisResult } from '@/lib/movies';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -97,16 +98,9 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center gap-6 py-20"
+                className="w-full"
               >
-                <div className="relative">
-                  <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-                  <Clapperboard className="absolute inset-0 m-auto h-6 w-6 text-blue-500 animate-pulse" />
-                </div>
-                <div className="text-center space-y-1">
-                  <p className="text-foreground font-bold tracking-tight">Gathering insights...</p>
-                  <p className="text-zinc-500 text-sm">Gemini is processing reviews and analyzing sentiment</p>
-                </div>
+                <MovieSkeleton />
               </motion.div>
             )}
 
